@@ -4,6 +4,7 @@
 #include "STS_PlayerCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/SpringArmComponent.h"
+#include <STS_Weapon.h>
 
 ASTS_PlayerCharacter::ASTS_PlayerCharacter()
 {
@@ -48,4 +49,17 @@ void ASTS_PlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInpu
 
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &ASTS_PlayerCharacter::StartCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &ASTS_PlayerCharacter::EndCrouch);
+
+	PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &ASTS_PlayerCharacter::StartFire);
+	PlayerInputComponent->BindAction("Fire", IE_Released, this, &ASTS_PlayerCharacter::StopFire);
+}
+
+FVector ASTS_PlayerCharacter::GetPawnViewLocation() const
+{
+	if (IsValid(CameraComponent))
+	{
+		return CameraComponent->GetComponentLocation();
+	}
+
+	return Super::GetPawnViewLocation();
 }
