@@ -7,6 +7,7 @@
 #include "STS_BaseCharacter.generated.h"
 
 class ASTS_Weapon;
+class USTS_HealthComponent;
 
 UCLASS()
 class ARK_STEALTHSHOOTER_API ASTS_BaseCharacter : public ACharacter
@@ -26,12 +27,20 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	ASTS_Weapon * CurrentWeapon;
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USTS_HealthComponent * HealthComponent;
+
 	UFUNCTION(BlueprintCallable)
 	void StartFire();
 
 	UFUNCTION(BlueprintCallable)
 	void StopFire();
 
+	UFUNCTION()
+	void OnHealthChanged(USTS_HealthComponent * HealthComp, float Health, float HealthDelta, const class UDamageType* DamageType, class AController* InstigatedBy, AActor* DamageCauser);
+
+	UFUNCTION()
+	void OnDeath(USTS_HealthComponent* HealthComp, class AController* InstigatedBy, AActor* Killer);
 protected:
 
 	// Called when the game starts or when spawned
