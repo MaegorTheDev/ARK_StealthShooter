@@ -23,6 +23,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnDeath OnDeath;
 
+	UFUNCTION(BlueprintCallable)
+	void Kill(AController* InstigatedBy, AActor* DamageCauser);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

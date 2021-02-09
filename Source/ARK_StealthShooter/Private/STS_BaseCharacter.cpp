@@ -5,6 +5,8 @@
 #include "GameFramework/PawnMovementComponent.h"
 #include <STS_Weapon.h>
 #include <STS_HealthComponent.h>
+#include "Animation/AnimInstance.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 ASTS_BaseCharacter::ASTS_BaseCharacter()
@@ -12,8 +14,55 @@ ASTS_BaseCharacter::ASTS_BaseCharacter()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = false;
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
-
+	bIsMeleeAttacking = false;
 	HealthComponent = CreateDefaultSubobject<USTS_HealthComponent>(TEXT("HealthComponent"));
+}
+
+void ASTS_BaseCharacter::StartMelee()
+{
+	if (bIsMeleeAttacking)
+	{
+		return;
+	}
+
+
+	if (AnimInstance != nullptr)
+	{
+		bIsMeleeAttacking = true;
+		GetMovementComponent()->StopMovementImmediately();
+		AnimInstance->Montage_Play(MeleeAttackMontage);
+	}
+
+}
+
+void ASTS_BaseCharacter::FinishMelee(UAnimMontage* AnimMontage, bool bInterrupted)
+{
+	if (AnimMontage == MeleeAttackMontage)
+	{
+		bIsMeleeAttacking = false;
+	}
+}
+
+void ASTS_BaseCharacter::DoMeleeAttack()
+{
+	const FVector MeleeAttackLocation = GetMesh()->GetSocketLocation(MeleeAttackBoneName);
+	TArray<AActor*> ActorsToIgnore;
+	ActorsToIgnore.Add(this);
+	TArray<AActor*> OutActors;
+
+	if (UKismetSystemLibrary::SphereOverlapActors(GetWorld(), MeleeAttackLocation, MeleeAttackRange, MeleeObjectTypes, AActor::StaticClass(), ActorsToIgnore, OutActors)) 
+	{
+		AActor * HitActor = OutActors[0];
+		if (IsValid(HitActor))
+		{
+			USTS_HealthComponent * HitActorHealthComp = Cast<USTS_HealthComponent>(HitActor->GetComponentByClass(USTS_HealthComponent::StaticClass()));
+			if (IsValid(HitActorHealthComp))
+			{
+				HitActorHealthComp->Kill(GetController(), this);
+
+			}
+		}
+	}
 }
 
 void ASTS_BaseCharacter::StartFire()
@@ -58,6 +107,12 @@ void ASTS_BaseCharacter::BeginPlay()
 			CurrentWeapon->SetOwner(this);
 			CurrentWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocketName);
 		}
+	}
+
+	AnimInstance = GetMesh()->GetAnimInstance();
+	if (IsValid(AnimInstance))
+	{
+		AnimInstance->OnMontageEnded.AddDynamic(this, &ASTS_BaseCharacter::FinishMelee);
 	}
 
 	if (IsValid(HealthComponent))
