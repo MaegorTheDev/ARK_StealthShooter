@@ -6,6 +6,7 @@
 #include "STS_BaseCharacter.h"
 #include "STS_Enemy.generated.h"
 
+class ASTS_PatrolActor;
 /**
  * 
  */
@@ -13,5 +14,10 @@ UCLASS()
 class ARK_STEALTHSHOOTER_API ASTS_Enemy : public ASTS_BaseCharacter
 {
 	GENERATED_BODY()
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	ASTS_PatrolActor * PatrolActorReference;
 	
 };
