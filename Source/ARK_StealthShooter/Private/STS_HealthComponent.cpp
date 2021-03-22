@@ -41,7 +41,7 @@ void USTS_HealthComponent::HandleTakeAnyDamage(AActor* DamagedActor, float Damag
 	}
 
 	CurrentHealth = FMath::Clamp(CurrentHealth - Damage, 0.0f, DefaultHealth);
-	OnHealthChanged.Broadcast(this, CurrentHealth, Damage, DamageType, InstigatedBy, DamageCauser);
+	OnHealthChanged.Broadcast(this, CurrentHealth, -Damage, DamageType, InstigatedBy, DamageCauser);
 
 	if (CurrentHealth == 0.0f)
 	{
@@ -60,5 +60,15 @@ void USTS_HealthComponent::Kill(AController* InstigatedBy, AActor* DamageCauser)
 	CurrentHealth = 0.0f;
 	bDied = true;
 	OnDeath.Broadcast(this, InstigatedBy, DamageCauser);
+}
+
+void USTS_HealthComponent::Heal(const float HealAmount, AController* InstigatedBy, AActor* DamageCauser)
+{
+	if (bDied)
+	{
+		return;
+	}
+	CurrentHealth = FMath::Clamp(CurrentHealth + HealAmount, 0.0f, DefaultHealth);
+	OnHealthChanged.Broadcast(this, CurrentHealth, HealAmount, nullptr, InstigatedBy, DamageCauser);
 }
 

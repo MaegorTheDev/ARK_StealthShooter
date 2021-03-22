@@ -26,6 +26,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void Kill(AController* InstigatedBy, AActor* DamageCauser);
 
+	UFUNCTION(BlueprintCallable)
+	void Heal(const float HealAmount, AController* InstigatedBy, AActor* DamageCauser);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
