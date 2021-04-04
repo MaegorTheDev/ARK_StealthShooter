@@ -63,6 +63,15 @@ protected:
 	UPROPERTY(EditDefaultsOnly)
 	FName TracerTargetName;
 
+	UPROPERTY(EditDefaultsOnly)
+	USoundBase* ShotSound;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ShotVolume;
+
+	UPROPERTY(EditDefaultsOnly)
+	float ShotLoudness;
+
 	void Fire();
 
 	// Called when the game starts or when spawned

@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "DrawDebugHelpers.h"
 #include "Particles/ParticleSystemComponent.h"
+#include <STS_BaseCharacter.h>
 
 // Sets default values
 ASTS_Weapon::ASTS_Weapon()
@@ -19,6 +20,7 @@ ASTS_Weapon::ASTS_Weapon()
 	ShotDistance = 10000.f;
 	RoundsPerMinute = 600.0f;
 	bDrawDebug = false;
+	ShotVolume = 1.0f;
 } 
 
 void ASTS_Weapon::StartFire()
@@ -73,6 +75,8 @@ void ASTS_Weapon::Fire()
 			
 		}
 
+		const FVector MuzzleLocation = WeaponMesh->GetSocketLocation(MuzzleSocketName);
+
 		if (bDrawDebug)
 		{
 			DrawDebugLine(GetWorld(), EyeLocation, TraceEndPoint, FColor::White, false, 1.0f, 0, 1.0f);
@@ -82,6 +86,11 @@ void ASTS_Weapon::Fire()
 		{
 			UGameplayStatics::SpawnEmitterAttached(MuzzleEffect, WeaponMesh, MuzzleSocketName);
 		}
+		
+		if (ShotSound)
+		{
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), ShotSound, MuzzleLocation, ShotVolume);
+		}
 
 		if (TracerEffect)
 		{
@@ -90,6 +99,12 @@ void ASTS_Weapon::Fire()
 			{
 				TracerComponent->SetVectorParameter(TracerTargetName, TraceEndPoint);
 			}
+		}
+
+		ASTS_BaseCharacter * OwnerCharacter = Cast<ASTS_BaseCharacter>(MyOwner);
+		if (IsValid(OwnerCharacter))
+		{
+			OwnerCharacter->CharacterMakeNoise(ShotLoudness, MuzzleLocation);
 		}
 
 		LastFireTime = GetWorld()->TimeSeconds;

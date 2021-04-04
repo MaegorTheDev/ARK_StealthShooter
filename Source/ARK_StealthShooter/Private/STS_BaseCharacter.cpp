@@ -7,6 +7,7 @@
 #include <STS_HealthComponent.h>
 #include "Animation/AnimInstance.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
 ASTS_BaseCharacter::ASTS_BaseCharacter()
@@ -16,6 +17,9 @@ ASTS_BaseCharacter::ASTS_BaseCharacter()
 	GetMovementComponent()->GetNavAgentPropertiesRef().bCanCrouch = true;
 	bIsMeleeAttacking = false;
 	HealthComponent = CreateDefaultSubobject<USTS_HealthComponent>(TEXT("HealthComponent"));
+
+	CharacterNoiseEmmiter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("NoiseEmitter"));
+	CharacterNoiseEmmiter->SetAutoActivate(true);
 }
 
 void ASTS_BaseCharacter::StartMelee()
@@ -91,6 +95,14 @@ void ASTS_BaseCharacter::OnDeath(USTS_HealthComponent* HealthComp, class AContro
 	StopFire();
 	GetMovementComponent()->StopMovementImmediately();
 	this->SetActorEnableCollision(false);
+}
+
+void ASTS_BaseCharacter::CharacterMakeNoise(const float Loudness, const FVector NoiseLocation)
+{
+	if (IsValid(CharacterNoiseEmmiter))
+	{
+		CharacterNoiseEmmiter->MakeNoise(this, Loudness, NoiseLocation);
+	}
 }
 
 // Called when the game starts or when spawned
